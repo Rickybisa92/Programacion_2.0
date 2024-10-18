@@ -10,8 +10,9 @@ public class Exercici8 {
         Scanner scanner = new Scanner(System.in);
         System.out.println("Dame un numero:");
         int num = scanner.nextInt();
+        int original = num;
 
-        int multi9 = num << 3 + num;
+        int multi9 = (num << 3) + original;
 
         System.out.println("El resultado multiplicado por 9 es: " + multi9);
     }
