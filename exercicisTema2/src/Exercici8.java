@@ -11,7 +11,7 @@ public class Exercici8 {
         System.out.println("Dame un numero:");
         int num = scanner.nextInt();
 
-        int multi9 = (num << 7 / 2) + num;
+        int multi9 = num << 3 + num;
 
         System.out.println("El resultado multiplicado por 9 es: " + multi9);
     }
