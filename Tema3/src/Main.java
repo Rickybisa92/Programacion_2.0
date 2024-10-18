@@ -94,5 +94,32 @@ public class Main {
             System.out.println("Excelente");
         }
 
+        Scanner scanner1 = new Scanner(System.in);
+        int nota1 = scanner.nextInt();
+
+        switch (nota1) {
+            case 0:
+            case 1:
+            case 2:
+            case 3:
+            case 4:
+                System.out.println("Insuficiente");
+                break;
+            case 5:
+                System.out.println("Suficiente");
+                break;
+            case 6:
+                System.out.println("Bien");
+                break;
+            case 7:
+            case 8:
+                System.out.println("Notable");
+                break;
+            case 9:
+            case 10:
+                System.out.println("Excelente");
+                break;
+        }
+
     }
 }
