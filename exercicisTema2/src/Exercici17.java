@@ -14,7 +14,15 @@ public class Exercici17 {
         System.out.println("Dame el día(1-31):");
         int dia = scanner.nextInt();
 
+        boolean libra = (mes == 9 && dia >= 23 || mes == 10 && dia <= 22 );
+
+
+        /* Asi es como lo hice yo en un principio,
+        lo he dejado para que lo puedas ver y decirme si esta opcion tambien estaria bien.
+
         String libra = (mes == 9 && dia >= 23 || mes == 10 && dia <= 22 ) ? "Es libra" : "No es libra";
         System.out.println(libra);
+
+         */
     }
 }

@@ -7,11 +7,9 @@ public class Exercici10 {
 
         int a = 111;
         int b = 444;
-        int c = 8888;
 
-
-        int operacionXor = a^b;
-        int resultado = operacionXor^a;
+        int operacionXor = a ^ b;
+        int resultado = operacionXor ^ a;
 
         System.out.println(resultado);
     }
