@@ -8,7 +8,7 @@ import java.util.Scanner;
         // de un 10% = 5 horas la moto, de un 15% = 5h el coche y un (17% = 5h un camion) depende del tipo
         // si esta aparcado mas de 10h se aplica una recarga fija de 30% para todos los vehiculos
 
-public class programaCondiciones2 {
+public class exerciciTarifes {
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
         System.out.println("Que tipo de vehiculo tienes (1-moto, 2-coche, 3-camion)?:");
