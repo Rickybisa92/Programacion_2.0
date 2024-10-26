@@ -20,13 +20,11 @@ public class exercici10 {
         Scanner scanner = new Scanner(System.in);
         System.out.println("Escribe el numero de filas que quieres:");
         int n = scanner.nextInt();
-        int numeroInicial = 1;
+        int numeroInicial = 0;
 
         for (int i = 1; i <= n ; i++) {
-            // i es la fila "*"
             numeroInicial++;
             for (int j = 1; j <= i ; j++) {
-                // j es la columna "**"
                 System.out.print(numeroInicial);
             }
             System.out.println();
