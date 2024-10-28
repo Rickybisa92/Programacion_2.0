@@ -21,7 +21,7 @@ public class exercici9 {
                 num = num / 2;
             } else  {
                 System.out.println(num + " es impar, se multiplica por 3 y se le suma 1: ");
-                num = (num * 3) + 1;
+                num = num * 3 + 1;
             }
             System.out.println(num);
 
