@@ -20,12 +20,10 @@ public class exercici10 {
         Scanner scanner = new Scanner(System.in);
         System.out.println("Escribe el numero de filas que quieres:");
         int n = scanner.nextInt();
-        int numeroInicial = 0;
 
         for (int i = 1; i <= n ; i++) {
-            numeroInicial++;
             for (int j = 1; j <= i ; j++) {
-                System.out.print(numeroInicial);
+                System.out.print(i);
             }
             System.out.println();
         }

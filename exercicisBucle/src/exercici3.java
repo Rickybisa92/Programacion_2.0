@@ -18,10 +18,10 @@ public class exercici3 {
         do {
             System.out.println("Dame un numero:");
              n = scanner.nextInt();
-             if ( n < 0) {
-                 negativo++;
-             } else {
+             if ( n > 0) {
                  positivo++;
+             } else if (n < 0) {
+                 negativo++;
              }
         } while (n != 0);
         System.out.println("Numeros positivos: " + positivo + " y numero negativos: " + negativo);
