@@ -10,27 +10,17 @@ public class exercici6 {
     public static void main(String[] args) {
 
         Scanner scanner = new Scanner(System.in);
-        int n = 0;
-        int contador = 0;
-        int total;
+        int maximaSuma = scanner.nextInt();
         int suma = 0;
+        int contador = 1;
 
-        while ( n >= 0) {
-            System.out.println("Introduce una calificación: ");
-            n = scanner.nextInt();
-
-            if (n >= 0) {
-                suma += n;
-                contador++;
-            }
+        do {
+            suma += contador;
+            contador++;
         }
 
-        if (contador > 0) {
-            double media = (double) suma / contador;
-            long redondeoMedia = Math.round(media);
-            System.out.println("La media de las calificaciones es: " + redondeoMedia);
-        } else {
-            System.out.println("No se han introducido calificaciones.");
+        while ( suma <= maximaSuma);
+            System.out.println("He tenido que sumar " + (contador-1) + " termes");
+
         }
     }
-}

@@ -13,17 +13,17 @@ public class exercici9 {
 
         Scanner scanner = new Scanner(System.in);
         System.out.println("Escribe un numero");
-        int n = scanner.nextInt();
+        int num = scanner.nextInt();
 
-        while (n != 1) {
-            if (n % 2 == 0) {
-                System.out.println(n + " es par, se divide por 2: ");
-                n = n / 2;
+        while (num != 1) {
+            if (num % 2 == 0) {
+                System.out.println(num + " es par, se divide por 2: ");
+                num = num / 2;
             } else  {
-                System.out.println(n + " es impar, se multiplica por 3 y se le suma 1: ");
-                n = (n * 3) + 1;
+                System.out.println(num + " es impar, se multiplica por 3 y se le suma 1: ");
+                num = (num * 3) + 1;
             }
-            System.out.println(n);
+            System.out.println(num);
 
         }
     }
