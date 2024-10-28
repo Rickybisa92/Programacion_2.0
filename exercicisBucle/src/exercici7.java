@@ -13,13 +13,11 @@ public class exercici7 {
         int n = scanner.nextInt();
 
         int suma = 0;
-        int contador = 0;
-        int sumaTermes = 1;
+        int sumaTermes = 0;
 
 
         do {
             suma += sumaTermes;
-            contador++;
             sumaTermes++;
             System.out.println(sumaTermes);
 

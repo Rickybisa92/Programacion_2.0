@@ -10,7 +10,7 @@ public class exercici3 {
     public static void main(String[] args) {
 
         Scanner scanner = new Scanner(System.in);
-        int n = 0;
+        int n;
         int positivo = 0;
         int negativo = 0;
 
