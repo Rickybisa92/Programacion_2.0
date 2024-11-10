@@ -2,7 +2,6 @@ public class Exercici8 {
     public static void main(String[] args) {
         Turtle t = new Turtle(500,500);
 
-
         int lado = 50;
         int numTriangulos = 4;
 
@@ -19,7 +18,7 @@ public class Exercici8 {
 
 
 
-        t.setDelay(500);
+        t.setDelay(300);
         t.markCursor();
         t.show();
 
