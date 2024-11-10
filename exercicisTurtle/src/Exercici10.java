@@ -2,9 +2,18 @@ public class Exercici10 {
     public static void main(String[] args) {
         Turtle t = new Turtle(500,500);
 
-        int costados = 70;
+        int costados = 65;
 
+        figura(t, costados);
+        t.turnLeft(90);
+        figura(t, costados);
 
+        t.setDelay(100);
+        t.markCursor();
+        t.show();
+    }
+
+    public static void figura(Turtle t, int costados) {
         t.forward(costados);
         t.turnRight(90);
         for (int i = 0; i < 20; i++) {
@@ -12,10 +21,7 @@ public class Exercici10 {
             t.turnRight(5);
         }
         t.turnRight(80);
-        t.forward(costados);
+        t.forward(costados-5);
 
-        t.setDelay(100);
-        t.markCursor();
-        t.show();
     }
 }
