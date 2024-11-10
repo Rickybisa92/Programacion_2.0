@@ -1,9 +1,15 @@
+import java.util.Scanner;
+
 public class Exercici5 {
     public static void main(String[] args) {
         Turtle t = new Turtle(500, 500);
+        Scanner scanner = new Scanner(System.in);
 
-        int numeroCuadrados = 2;
-        int costados = 50;
+        System.out.println("Numero de cuadrados que quieres: ");
+        int numeroCuadrados = scanner.nextInt();
+
+        System.out.println("Tamaño de los lados del cuadrado: ");
+        int costados = scanner.nextInt();
 
         for (int i = 0; i < numeroCuadrados; i++) {
             cuadrado(t,costados);
@@ -12,7 +18,7 @@ public class Exercici5 {
         }
 
 
-        t.setDelay(700);
+        t.setDelay(100);
         t.markCursor();
         t.show();
     }

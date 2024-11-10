@@ -1,10 +1,23 @@
+import java.util.Scanner;
+
 public class Exercici6 {
     public static void main(String[] args) {
-        Turtle t = new Turtle(500, 500);
+        Turtle t = new Turtle(700, 700);
+        Scanner scanner = new Scanner(System.in);
 
-        int costados = 50;
-        int numeroVueltas = 10;
-        int poligonoCostados = 5;
+        System.out.println("Tamaño de los costados: ");
+        int costados = scanner.nextInt();
+
+        System.out.println("Numero de vueltas del poligono: ");
+        int numeroVueltas = scanner.nextInt();
+
+        System.out.println("Cuantos costados quieres que tenga el poligono: ");
+        int poligonoCostados = scanner.nextInt();
+
+
+        if (poligonoCostados <= 2) {
+            System.out.println("No puedes añadir un poligono con menos de dos costados.");
+        }
 
         for (int i = 0; i < numeroVueltas; i++) {
             poligono(t, costados, poligonoCostados);
@@ -20,7 +33,7 @@ public class Exercici6 {
 
 
     public static void poligono(Turtle t, int costados, int poligonoCostados) {
-        for (int i = 0; i < poligonoCostados - 4; i++) {
+        for (int i = 0; i < poligonoCostados / 2; i++) {
             t.forward(costados);
             t.turnRight(360/poligonoCostados);
         }
