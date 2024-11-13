@@ -1,14 +1,23 @@
+import java.util.Scanner;
+
+//4- Dibuixa el següent gràfic. Paràmetres: número de «fulles», longitud de la fulla.
 public class Exercici4 {
+
+
     public static void main(String[] args) {
         Turtle t = new Turtle(500, 500);
+        Scanner scanner = new Scanner(System.in);
 
-        int numeroHojas = 5;  // Número de hojas o niveles en el dibujo
-        int cateto1 = 40;      // Longitud del cateto
-        int hipotenusa = (int) Math.sqrt((cateto1 * cateto1) + (cateto1 * cateto1));  // Longitud de la hipotenusa
+        System.out.println("Escribe el numero de hojas que quieres: ");
+        int numeroHojas = scanner.nextInt();
+
+        System.out.println("Longitud del cateto: ");
+        int cateto1 = scanner.nextInt();
+        int hipotenusa = (int) Math.sqrt((cateto1 * cateto1) + (cateto1 * cateto1));
 
 
-        // Dibuja el tronco después de las hojas
-        t.forward(cateto1 / 2);  // Dibuja el tronco
+
+        t.forward(cateto1 / 2);
 
         t.turnLeft(90);
         hojasDerecha(t, cateto1, hipotenusa, numeroHojas);

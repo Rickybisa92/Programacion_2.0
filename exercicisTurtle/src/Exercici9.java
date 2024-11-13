@@ -1,4 +1,7 @@
 public class Exercici9 {
+
+    //9- Dibuixa el següent gràfic. Paràmetres: longitud de costat i número de triangles.
+
     public static void main(String[] args) {
         Turtle t = new Turtle(800, 800);
         int nc = 9;

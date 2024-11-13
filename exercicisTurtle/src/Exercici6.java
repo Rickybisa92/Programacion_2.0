@@ -1,4 +1,7 @@
 import java.util.Scanner;
+//6- Dibuixa el següent gràfic. Paràmetres: nombre de voltes de l'espiral i número de costats del
+//polígon de base.
+
 
 public class Exercici6 {
     public static void main(String[] args) {

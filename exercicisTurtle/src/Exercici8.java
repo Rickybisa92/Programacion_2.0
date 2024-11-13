@@ -1,4 +1,6 @@
 public class Exercici8 {
+    //8- Dibuixa el següent gràfic.
+
     public static void main(String[] args) {
         Turtle t = new Turtle(500,500);
 

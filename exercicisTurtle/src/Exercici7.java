@@ -1,5 +1,7 @@
 import java.util.Scanner;
 
+//7- Dibuixa el següent gràfic. Paràmetres: nombre de fulles.
+
 public class Exercici7 {
     public static void main(String[] args) {
         Turtle t = new Turtle(500,500);

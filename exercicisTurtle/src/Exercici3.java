@@ -1,4 +1,6 @@
 import java.util.Scanner;
+//3- Dibuixa el següent gràfic. Paràmetres: longitud de costat, nombre de quadres en horitzontal i
+//nombre de quadres en vertical.
 
 public class Exercici3 {
     public static void main(String[] args) {

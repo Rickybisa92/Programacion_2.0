@@ -1,4 +1,6 @@
 import java.util.Scanner;
+//2- Dibuixa el següent gràfic. Paràmetres: número d'escalons, píxels totals en vertical i píxels totals
+//en horitzontal.
 
 public class Exercici2 {
     public static void main(String[] args) {
