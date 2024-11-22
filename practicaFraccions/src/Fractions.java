@@ -46,7 +46,15 @@ public class Fractions {
         if (unidad == 0) {
             return decenas[decena];
         }
-        return decenas[decena] + "-i-" + convertirUnidades(unidad);
+
+// Si el número termina en 9 (por ejemplo, 49, 59, 69, etc.), usamos "novè" en lugar de "nouè"
+        if (unidad == 9) {
+            return decenas[decena] + "-novè";
+        }
+
+        // Decide si usa "-" o "-i-" según si está entre 20 y 29
+        String separador = (decena == 2) ? "-i-" : "-";
+        return decenas[decena] + separador + convertirUnidades(unidad);
     }
 
     private static String convertirCentenas(int numero) {
@@ -80,15 +88,23 @@ public class Fractions {
 
         // Para denominadores grandes, usar la función construirOrdinal
         return construirOrdinal(denominador, esSingular);
+
     }
 
     private static String construirOrdinal(int numero, boolean esSingular) {
         String base = convertirNumeroATexto(numero);
 
+        // Si ya termina en "è", asumimos que es correcto y devolvemos directamente
         if (base.endsWith("è")) {
-            return base; // Si ya tiene el sufijo "è", no lo agregamos
+            return base;
         }
 
+        // Eliminar la última vocal si es necesario
+        if (base.endsWith("a") || base.endsWith("e") || base.endsWith("o")) {
+            base = base.substring(0, base.length() - 1);
+        }
+
+        // Añadir sufijo correspondiente
         if (esSingular) {
             return base + "è";
         }
