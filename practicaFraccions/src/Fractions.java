@@ -20,9 +20,11 @@ public class Fractions {
         } else if (numero < 10) {
             return convertirUnidades(numero);
         } else if (numero < 100) {
-            return convertirDecenas(numero);
+            return convertirDecenas(numero, true);
+        } else if (numero < 1000) {
+            return convertirCentenas(numero);  // Convertimos los números de 100 a 999
         } else {
-            return convertirCentenas(numero);
+            return convertirMiles(numero);  // Convertimos los números mayores a 1000
         }
     }
 
@@ -38,7 +40,7 @@ public class Fractions {
 
     }
 
-    private static String convertirDecenas(int numero) {
+    private static String convertirDecenas(int numero, boolean esSingular) {
         String[] decenas = {"", "deu", "vint", "trenta", "quaranta", "cinquanta", "seixanta", "setanta", "vuitanta", "noranta"};
         int decena = numero / 10;
         int unidad = numero % 10;
@@ -47,10 +49,8 @@ public class Fractions {
             return decenas[decena];
         }
 
-// Si el número termina en 9 (por ejemplo, 49, 59, 69, etc.), usamos "novè" en lugar de "nouè"
-        if (unidad == 9) {
-            return decenas[decena] + "-novè";
-        }
+
+
 
         // Decide si usa "-" o "-i-" según si está entre 20 y 29
         String separador = (decena == 2) ? "-i-" : "-";
@@ -61,11 +61,36 @@ public class Fractions {
         int centena = numero / 100;
         int resto = numero % 100;
 
+        // Si el número es exactamente 100, se debe devolver "centèsim" en vez de "cent"
+        if (centena == 1 && resto == 0) {
+            return "centèsim";
+        }
+
         String textoCentena = (centena == 1) ? "cent" : convertirUnidades(centena) + "-cents";
         if (resto == 0) {
             return textoCentena;
         }
-        return textoCentena + " " + convertirDecenas(resto);
+        return textoCentena + " " + convertirDecenas(resto, true);
+    }
+
+
+    private static String convertirMiles(int numero) {
+        int mil = numero / 1000;
+        int resto = numero % 1000;
+
+        // En caso de ser 1000, devolvemos "mil"
+        if (mil == 1 && resto == 0) {
+            return "mil";
+        }
+
+        // Para otros casos, devolvemos el valor en miles y el resto
+        String textoMil = convertirUnidades(mil) + "-mil";
+
+        if (resto == 0) {
+            return textoMil;
+        }
+
+        return textoMil + " " + convertirCentenas(resto);
     }
 
     private static String generarDenominador(int denominador, boolean esSingular) {
@@ -99,9 +124,24 @@ public class Fractions {
             return base;
         }
 
+        // Si el número es 100, manejamos el caso especial "centèsim"
+        if (numero == 1 && base.equals("cent")) {
+            return "Un centèsim";
+        }
+
         // Eliminar la última vocal si es necesario
         if (base.endsWith("a") || base.endsWith("e") || base.endsWith("o")) {
             base = base.substring(0, base.length() - 1);
+        }
+
+        // Caso específico para "u" cuando es singular
+        if (base.endsWith("u")) {
+            base = base.substring(0, base.length() - 1);
+            if (esSingular) {
+                return base + "vè"; // Singular, caso especial para "u"
+            } else {
+                return base + "vens"; // Plural, caso especial para "u"
+            }
         }
 
         // Añadir sufijo correspondiente
