@@ -40,38 +40,60 @@ public class Fractions {
 
     }
 
-    private static String convertirDecenas(int numero, boolean esSingular) {
+    private static String convertirDecenas(int numero, boolean conSeparador) {
         String[] decenas = {"", "deu", "vint", "trenta", "quaranta", "cinquanta", "seixanta", "setanta", "vuitanta", "noranta"};
         int decena = numero / 10;
         int unidad = numero % 10;
+
+        // Si no hay decena (es decir, es un número menor que 10), devolvemos la unidad directamente
+        if (decena == 0) {
+            return convertirUnidades(unidad);
+        }
+
 
         if (unidad == 0) {
             return decenas[decena];
         }
 
+        // Decide el separador
+        String separador = "";
 
+        // Para los números entre 20-29, usamos el guion "-i-" (veintitrés -> vint-i-tres)
+        if (decena == 2) {
+            separador = "-i-";
+        } else {
+            // Para el resto de decenas, usamos un guion normal
+            separador = "-";
+        }
 
-
-        // Decide si usa "-" o "-i-" según si está entre 20 y 29
-        String separador = (decena == 2) ? "-i-" : "-";
         return decenas[decena] + separador + convertirUnidades(unidad);
     }
 
     private static String convertirCentenas(int numero) {
+        // Array de las centenas
+        String[] CENTENAS = {
+                "", "cent", "dos-cents", "tres-cents", "quatre-cents",
+                "cinc-cents", "sis-cents", "set-cents", "vuit-cents", "nou-cents"
+        };
+
         int centena = numero / 100;
         int resto = numero % 100;
 
-        // Si el número es exactamente 100, se debe devolver "centèsim" en vez de "cent"
-        if (centena == 1 && resto == 0) {
-            return "centèsim";
-        }
+        // Obtenemos la palabra para la centena correspondiente
+        String textoCentena = CENTENAS[centena];
 
-        String textoCentena = (centena == 1) ? "cent" : convertirUnidades(centena) + "-cents";
+        // Si no hay resto, devolvemos solo la centena
         if (resto == 0) {
             return textoCentena;
         }
-        return textoCentena + " " + convertirDecenas(resto, true);
-    }
+
+
+
+        // Añadimos el resto usando decenas
+        String textoResto = convertirDecenas(resto, false);
+
+        return textoCentena + " " + textoResto; // Concatenamos con un espacio
+        }
 
 
     private static String convertirMiles(int numero) {
@@ -119,15 +141,19 @@ public class Fractions {
     private static String construirOrdinal(int numero, boolean esSingular) {
         String base = convertirNumeroATexto(numero);
 
+        // Caso especial para "centèsim"
+        if (base.equals("cent") && esSingular) {
+            return "centèsim";
+        }
+        if (base.equals("cent") && !esSingular) {
+            return "centens";
+        }
+
         // Si ya termina en "è", asumimos que es correcto y devolvemos directamente
         if (base.endsWith("è")) {
             return base;
         }
 
-        // Si el número es 100, manejamos el caso especial "centèsim"
-        if (numero == 1 && base.equals("cent")) {
-            return "Un centèsim";
-        }
 
         // Eliminar la última vocal si es necesario
         if (base.endsWith("a") || base.endsWith("e") || base.endsWith("o")) {
