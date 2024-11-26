@@ -24,7 +24,11 @@ public class Fractions {
         } else if (numero < 1000) {
             return convertirCentenas(numero);  // Convertimos los números de 100 a 999
         } else {
-            return convertirMiles(numero);  // Convertimos los números mayores a 1000
+            // Manejo especial para "mil" y números mayores
+            if (numero == 1000) {
+                return "mil"; // Caso especial para "mil"
+            }
+            return convertirMiles(numero, true); // Convertimos los números mayores a 1000
         }
     }
 
@@ -33,10 +37,10 @@ public class Fractions {
         return unidades[numero];
     }
 
-    public static String numerosEspeciales (int numero) {
+    public static String numerosEspeciales(int numero) {
         String[] numerosEspeciales = {"", "onze", "dotze", "tretze", "catorze", "quinze",
                 "setze", "disset", "divuit", "dinou"};
-            return numerosEspeciales[numero - 10]; // Ajuste para el índice correcto
+        return numerosEspeciales[numero - 10]; // Ajuste para el índice correcto
 
     }
 
@@ -88,31 +92,26 @@ public class Fractions {
         }
 
 
-
         // Añadimos el resto usando decenas
         String textoResto = convertirDecenas(resto, false);
 
         return textoCentena + " " + textoResto; // Concatenamos con un espacio
-        }
+    }
 
 
-    private static String convertirMiles(int numero) {
-        int mil = numero / 1000;
+    private static String convertirMiles(int numero, boolean esSingular) {
+        // Separar el millar del resto
+        int miles = numero / 1000;
         int resto = numero % 1000;
 
-        // En caso de ser 1000, devolvemos "mil"
-        if (mil == 1 && resto == 0) {
-            return "mil";
-        }
-
-        // Para otros casos, devolvemos el valor en miles y el resto
-        String textoMil = convertirUnidades(mil) + "-mil";
+        // Manejar casos especiales para "mil"
+        String resultadoMiles = (miles == 1) ? "mil" : convertirNumeroATexto(miles) + "-mil";
 
         if (resto == 0) {
-            return textoMil;
+            return resultadoMiles;
         }
 
-        return textoMil + " " + convertirCentenas(resto);
+        return resultadoMiles + " " + convertirNumeroATexto(resto); // Concatenar miles con el resto
     }
 
     private static String generarDenominador(int denominador, boolean esSingular) {
@@ -134,19 +133,37 @@ public class Fractions {
         }
 
         // Para denominadores grandes, usar la función construirOrdinal
-        return construirOrdinal(denominador, esSingular);
+        return construirOrdinal(denominador, esSingular, ordinalesSingulares, ordinalesPlurales);
 
     }
 
-    private static String construirOrdinal(int numero, boolean esSingular) {
+    private static String construirOrdinal(int numero, boolean esSingular, String[] ordinalesSingulares, String[] ordinalesPlurales) {
         String base = convertirNumeroATexto(numero);
 
         // Caso especial para "centèsim"
-        if (base.equals("cent") && esSingular) {
+        if (base.equals("cent")) {
+            if (esSingular){
             return "centèsim";
+        } else {
+            return "centèsims";
+            }
         }
-        if (base.equals("cent") && !esSingular) {
-            return "centens";
+
+        if (numero == 1000) {
+            if (esSingular) {
+                return "mil·lèsim";
+            } else {
+                return "mil·lèsims";
+            }
+        }
+
+
+        if (numero < ordinalesSingulares.length) {
+            if (esSingular) {
+                return ordinalesSingulares[numero];
+            } else {
+                return ordinalesPlurales[numero];
+            }
         }
 
         // Si ya termina en "è", asumimos que es correcto y devolvemos directamente
@@ -160,8 +177,12 @@ public class Fractions {
             base = base.substring(0, base.length() - 1);
         }
 
+
+
         // Caso específico para "u" cuando es singular
-        if (base.endsWith("u")) {
+        if (base.endsWith("c")){
+            base = base.substring(0, base.length()-1) + "qu";
+        }else if (base.endsWith("u")) {
             base = base.substring(0, base.length() - 1);
             if (esSingular) {
                 return base + "vè"; // Singular, caso especial para "u"
@@ -170,6 +191,9 @@ public class Fractions {
             }
         }
 
+        if (base.endsWith("c")){
+            base = base.substring(0, base.length()-1) + "qu";
+        }
         // Añadir sufijo correspondiente
         if (esSingular) {
             return base + "è";
