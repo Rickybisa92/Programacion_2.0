@@ -105,14 +105,32 @@ public class Fractions {
         int resto = numero % 1000;
 
         // Manejar casos especiales para "mil"
-        String resultadoMiles = (miles == 1) ? "mil" : convertirNumeroATexto(miles) + "-mil";
+        String resultadoMiles = (miles == 1) ? "mil" : convertirNumeroATexto(miles) + " mil";
 
         if (resto == 0) {
-            return resultadoMiles;
+            return resultadoMiles.trim();
         }
 
         return resultadoMiles + " " + convertirNumeroATexto(resto); // Concatenar miles con el resto
     }
+
+    private static String convertirMillones(int numero) {
+        int millones = numero / 1_000_000;
+        int resto = numero % 1_000_000;
+
+        // Manejar la parte de los millones
+        String textoMillones = (millones == 1) ? "un milió" : convertirNumeroATexto(millones) + " milions";
+
+        // Si no hay resto, devolvemos solo los millones
+        if (resto == 0) {
+            return textoMillones;
+        }
+
+        // Concatenar los millones con el resto
+        return textoMillones + " " + convertirNumeroATexto(resto);
+    }
+
+
 
     private static String generarDenominador(int denominador, boolean esSingular) {
         // Casos específicos de ordinales singulares y plurales
@@ -124,7 +142,7 @@ public class Fractions {
 
 
         // Si el denominador es menor que 17, usamos los valores de los arrays predefinidos
-        if (denominador < 17) {
+        if (denominador < ordinalesSingulares.length) {
             if (esSingular) {
                 return ordinalesSingulares[denominador];
             } else {
@@ -138,68 +156,51 @@ public class Fractions {
     }
 
     private static String construirOrdinal(int numero, boolean esSingular, String[] ordinalesSingulares, String[] ordinalesPlurales) {
+        // Convertir el número a texto
         String base = convertirNumeroATexto(numero);
 
-        // Caso especial para "centèsim"
-        if (base.equals("cent")) {
-            if (esSingular){
-            return "centèsim";
+        // Dividir en partes (por ejemplo, "deu mil cent")
+        String[] partes = base.split(" ");
+        int numPartes = partes.length;
+
+        // Procesar la última parte
+        String ultimaParte = partes[numPartes - 1];
+        String ultimaParteOrdinal;
+
+        if (ultimaParte.equals("cent")) {
+            ultimaParteOrdinal = esSingular ? "centèsim" : "centèsims";
+        } else if (ultimaParte.equals("mil")) {
+            ultimaParteOrdinal = esSingular ? "mil·lèsim" : "mil·lèsims";
+        }  else if (ultimaParte.equals("deu")) { // Caso especial para "dècim"
+            ultimaParteOrdinal = esSingular ? "dècim" : "dècims";
         } else {
-            return "centèsims";
+            // Manejo general: elimina terminaciones conflictivas y aplica sufijos
+            if (ultimaParte.endsWith("a") || ultimaParte.endsWith("e") || ultimaParte.endsWith("o")) {
+                ultimaParte = ultimaParte.substring(0, ultimaParte.length() - 1);
+            }
+            if (ultimaParte.endsWith("u")) {
+                ultimaParte = ultimaParte.substring(0, ultimaParte.length() - 1) + "v";
+            } else if (ultimaParte.endsWith("c")) {
+                ultimaParte = ultimaParte.substring(0, ultimaParte.length() - 1) + "qu";
+            }
+            ultimaParteOrdinal = esSingular ? ultimaParte + "è" : ultimaParte + "ens";
+        }
+
+        // Reemplazar la última parte procesada en la base original
+        partes[numPartes - 1] = ultimaParteOrdinal;
+
+        // Procesar las partes previas para evitar duplicar sufijos en números grandes
+        for (int i = 0; i < numPartes - 1; i++) {
+            if (partes[i].equals("deu") || partes[i].equals("mil")) {
+                partes[i] = partes[i];
             }
         }
 
-        if (numero == 1000) {
-            if (esSingular) {
-                return "mil·lèsim";
-            } else {
-                return "mil·lèsims";
-            }
-        }
-
-
-        if (numero < ordinalesSingulares.length) {
-            if (esSingular) {
-                return ordinalesSingulares[numero];
-            } else {
-                return ordinalesPlurales[numero];
-            }
-        }
-
-        // Si ya termina en "è", asumimos que es correcto y devolvemos directamente
-        if (base.endsWith("è")) {
-            return base;
-        }
-
-
-        // Eliminar la última vocal si es necesario
-        if (base.endsWith("a") || base.endsWith("e") || base.endsWith("o")) {
-            base = base.substring(0, base.length() - 1);
-        }
-
-
-
-        // Caso específico para "u" cuando es singular
-        if (base.endsWith("c")){
-            base = base.substring(0, base.length()-1) + "qu";
-        }else if (base.endsWith("u")) {
-            base = base.substring(0, base.length() - 1);
-            if (esSingular) {
-                return base + "vè"; // Singular, caso especial para "u"
-            } else {
-                return base + "vens"; // Plural, caso especial para "u"
-            }
-        }
-
-        if (base.endsWith("c")){
-            base = base.substring(0, base.length()-1) + "qu";
-        }
-        // Añadir sufijo correspondiente
-        if (esSingular) {
-            return base + "è";
-        }
-        return base + "ens";
+        // Reconstruir la frase completa
+        return String.join(" ", partes);
     }
+
+
 
     private static String mayusPrimeraLetra(String texto) {
         return texto.substring(0, 1).toUpperCase() + texto.substring(1);
