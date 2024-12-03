@@ -6,15 +6,42 @@ public class Fractions {
         int numerador = Integer.parseInt(s.substring(0, barra));
         int denominador = Integer.parseInt(s.substring(barra + 1));
 
+        int entero = numerador / denominador;
+        int residuo = numerador % denominador;
+
         // Convierte numerador y denominador
-        String numeradorTexto = convertirNumeroATexto(numerador);
+        String numeradorTexto = operacionFraccion(numerador, denominador, numerador < denominador);
         String denominadorTexto = generarDenominador(denominador, numerador == 1);
+        String enteroResultado = operacionFraccion(numerador, denominador, entero >= 1);
 
         // Construye y devuelve el resultado con mayúscula inicial
-        return mayusPrimeraLetra(numeradorTexto + " " + denominadorTexto);
+        return devolverValores(entero, residuo, numeradorTexto, denominadorTexto, enteroResultado);
+
     }
 
-    private static String convertirNumeroATexto(int numero) {
+    public static String devolverValores(int enteroNumero, int fraccion, String numerador, String denominador, String entero) {
+        if (enteroNumero == 0)
+            return mayusPrimeraLetra(numerador + " " + denominador);
+
+        if (fraccion == 0) return mayusPrimeraLetra(entero);
+        return mayusPrimeraLetra(entero + numerador + " " + denominador);
+    }
+
+    public static String operacionFraccion(int numerador, int denominador, boolean enteroOnumerador) {
+        int entero = numerador / denominador;
+        int residuo = numerador % denominador;
+
+        if (residuo == 0) {
+            return convertirNumeroATexto(entero);
+        }
+
+        if (enteroOnumerador && entero != 0) {
+            return convertirNumeroATexto(entero) + ", ";
+        }
+        return convertirNumeroATexto(residuo);
+    }
+
+    public static String convertirNumeroATexto(int numero) {
         if (numero >= 11 && numero <= 19) {
             return numerosEspeciales(numero);  // Usamos la función para los números 11-19
         } else if (numero < 10) {
@@ -23,16 +50,18 @@ public class Fractions {
             return convertirDecenas(numero, true);
         } else if (numero < 1000) {
             return convertirCentenas(numero);  // Convertimos los números de 100 a 999
-        } else {
+        } else if (numero < 1000000) {
             // Manejo especial para "mil" y números mayores
             if (numero == 1000) {
                 return "mil"; // Caso especial para "mil"
             }
             return convertirMiles(numero, true); // Convertimos los números mayores a 1000
+        } else {
+            return convertirMillones(numero);
         }
     }
 
-    private static String convertirUnidades(int numero) {
+    public static String convertirUnidades(int numero) {
         String[] unidades = {"", "un", "dos", "tres", "quatre", "cinc", "sis", "set", "vuit", "nou"};
         return unidades[numero];
     }
@@ -44,7 +73,7 @@ public class Fractions {
 
     }
 
-    private static String convertirDecenas(int numero, boolean conSeparador) {
+    public static String convertirDecenas(int numero, boolean conSeparador) {
         String[] decenas = {"", "deu", "vint", "trenta", "quaranta", "cinquanta", "seixanta", "setanta", "vuitanta", "noranta"};
         int decena = numero / 10;
         int unidad = numero % 10;
@@ -73,7 +102,7 @@ public class Fractions {
         return decenas[decena] + separador + convertirUnidades(unidad);
     }
 
-    private static String convertirCentenas(int numero) {
+    public static String convertirCentenas(int numero) {
         // Array de las centenas
         String[] CENTENAS = {
                 "", "cent", "dos-cents", "tres-cents", "quatre-cents",
@@ -99,7 +128,7 @@ public class Fractions {
     }
 
 
-    private static String convertirMiles(int numero, boolean esSingular) {
+    public static String convertirMiles(int numero, boolean esSingular) {
         // Separar el millar del resto
         int miles = numero / 1000;
         int resto = numero % 1000;
@@ -114,12 +143,12 @@ public class Fractions {
         return resultadoMiles + " " + convertirNumeroATexto(resto); // Concatenar miles con el resto
     }
 
-    private static String convertirMillones(int numero) {
+    public static String convertirMillones(int numero) {
         int millones = numero / 1_000_000;
         int resto = numero % 1_000_000;
 
         // Manejar la parte de los millones
-        String textoMillones = (millones == 1) ? "un milió" : convertirNumeroATexto(millones) + " milions";
+        String textoMillones = (millones == 1) ? "milió" : convertirNumeroATexto(millones) + " milions";
 
         // Si no hay resto, devolvemos solo los millones
         if (resto == 0) {
@@ -132,7 +161,7 @@ public class Fractions {
 
 
 
-    private static String generarDenominador(int denominador, boolean esSingular) {
+    public static String generarDenominador(int denominador, boolean esSingular) {
         // Casos específicos de ordinales singulares y plurales
         String[] ordinalesSingulares = {"","", "mig", "terç", "quart", "cinquè", "sisè", "setè", "vuitè", "novè", "dècim",
                 "onzè", "dotzè", "tretzè", "catorzè", "quinzè", "setzè", "dissetè"};
@@ -155,7 +184,7 @@ public class Fractions {
 
     }
 
-    private static String construirOrdinal(int numero, boolean esSingular, String[] ordinalesSingulares, String[] ordinalesPlurales) {
+    public static String construirOrdinal(int numero, boolean esSingular, String[] ordinalesSingulares, String[] ordinalesPlurales) {
         // Convertir el número a texto
         String base = convertirNumeroATexto(numero);
 
@@ -173,6 +202,8 @@ public class Fractions {
             ultimaParteOrdinal = esSingular ? "mil·lèsim" : "mil·lèsims";
         }  else if (ultimaParte.equals("deu")) { // Caso especial para "dècim"
             ultimaParteOrdinal = esSingular ? "dècim" : "dècims";
+        } else if (ultimaParte.equals("milió")) {
+            ultimaParteOrdinal = esSingular ? "milionèsim" : "milionèsims";
         } else {
             // Manejo general: elimina terminaciones conflictivas y aplica sufijos
             if (ultimaParte.endsWith("a") || ultimaParte.endsWith("e") || ultimaParte.endsWith("o")) {
@@ -202,7 +233,7 @@ public class Fractions {
 
 
 
-    private static String mayusPrimeraLetra(String texto) {
+    public static String mayusPrimeraLetra(String texto) {
         return texto.substring(0, 1).toUpperCase() + texto.substring(1);
     }
 }
