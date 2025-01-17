@@ -6,15 +6,21 @@
 public class exercici1 {
     public static void main(String[] args) {
         // Crear un objeto de la clase Cuadrado
-        QuadratMagic cuadrado = new QuadratMagic();
+        QuadratMagic cuadrado = new QuadratMagic(5);
         // Llamar al método imprimeix con el valor 5
-        cuadrado.imprimeix(5);
+        cuadrado.imprimeix();
     }
 }
 
     class QuadratMagic {
+        int n;
+
+        public QuadratMagic(int n) {
+            this.n = n;
+        }
+
         // Método para imprimir el cuadrado mágico
-        public void imprimeix(int n) {
+        public void imprimeix() {
             // Crear la matriz
             int[][] square = new int[n][n];
 
