@@ -1,3 +1,8 @@
+
+// 1- Implementa una classe anomenada «QuadratMagic»
+// que tingui un mètode «void imprimeix(int n)»
+// que mostri el quadrat següent (segons la dimensió que passem com a paràmetre):
+
 public class exercici1 {
     public static void main(String[] args) {
         // Crear un objeto de la clase Cuadrado
