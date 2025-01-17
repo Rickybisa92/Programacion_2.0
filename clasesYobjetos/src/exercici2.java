@@ -10,13 +10,16 @@
 public class exercici2 {
     public static void main(String[] args) {
 
-        Peix peix1 = new Peix("Dory");
-        Peix peix2 = new Peix("Nemo");
-        Peix peix3 = new Peix("Dory");
+        Peix peix1 = new Peix();
+        peix1.setNom("Dory");
+        Peix peix2 = new Peix();
+        peix2.setNom("Nemo");
+        Peix peix3 = new Peix(peix1);
+
 
         //Comparamos si los objetos son iguales
-        System.out.println("Peix1 es igual que Peix2? "+ peix1.equals(peix2)); // true
-        System.out.println("Peix1 es igual que Peix3? " + peix1.equals(peix3)); // false
+        System.out.println("Peix1 es igual que Peix2? "+ peix1.equals(peix2)); // false
+        System.out.println("Peix1 es igual que Peix3? " + peix1.equals(peix3)); // true
         System.out.println("Peix2 es igual que Peix3? " + peix2.equals(peix3)); // false
 
         // Mostramos el número de peixos creados
@@ -29,8 +32,8 @@ class Peix {
     static int count = 0;
 
     // Constructor
-    public Peix(String nom) {
-        this.nom = nom;
+    public Peix() {
+        this.nom = " ";
         count++;
     }
 
@@ -50,8 +53,8 @@ class Peix {
         return nom;
     }
 
-    public boolean equals(Peix copia) {
-        return this.nom.equals(copia.getNom());
+    public boolean equals(Peix p) {
+        return this.nom.equals(p.getNom());
     }
 
 }

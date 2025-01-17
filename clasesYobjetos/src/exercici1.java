@@ -19,8 +19,8 @@ public class exercici1 {
             int[][] square = new int[n][n];
 
             // Llenar la matriz según la lógica
-            for (int i = 0; i < n; i++) {
-                for (int j = 0; j < n; j++) {
+            for (int i = 0; i < n; i++) { // Recorrer las filas
+                for (int j = 0; j < n; j++) { // Recorrer las columnas
                     if (i == 0 || j == 0) {
                         // Primera fila y primera columna son 1
                         square[i][j] = 1;
