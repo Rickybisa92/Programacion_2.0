@@ -27,7 +27,7 @@ public class exercici4 {
             int num = Integer.parseInt(scanner.nextLine());
             Nombre nombre = new Nombre(num);
             System.out.println(nombre.getValor());
-            System.out.println(nombre.toRoma());
+            System.out.println(nombre.toRoma2());
             System.out.println(nombre.hex());
             System.out.println(nombre.bin());
         }
@@ -132,6 +132,38 @@ class Nombre {
 
     }
 
+    String toRoma2() {
+        String[] ar = {"a", "aa", "aaa", "ab", "b", "ba", "baa", "baaa", "af"};
+        int mils = this.valor / 1000;
+        int res = this.valor % 1000;
+        int cents = res / 100;
+        res = res % 100;
+        int des = res / 10;
+        int unitats = res % 10;
+
+        System.out.printf("Mils: %d, Cents: %d, Decs: %d, Unitats: %d", mils, cents, des, unitats);
+
+        if (mils > 0) {
+            String patron = ar[mils-1];
+            System.out.println("Mils: " + patron);
+        }
+        if (cents > 0) {
+            String patron = ar[cents-1];
+            System.out.println("Cents: " + patron);
+        }
+        if (des > 0) {
+            String patron = ar[des-1];
+            System.out.println("Des: " + patron);
+        }
+        if (unitats > 0) {
+            String patron = ar[unitats-1];
+            System.out.println("Unitats: " + patron);
+        }
+
+        return "";
+
+    }
+
     String convertirNumeroARomano(int n) {
         String resultado = "";
         int[] valores = {1000, 500, 100, 50, 10, 5, 1};
@@ -151,7 +183,7 @@ class Nombre {
          int centena = n2 / 100;
          int millar = n2 / 1000;
         String resultado = "";
-        int[] valores = {1000, 500, 100, 50, 10, 5, 1,0};
+        int[] valores = {1000, 500, 100, 50, 10, 5, 1};
         for (int i = 0; i < valores.length; i++) {
             while (centena >= valores[i]) {
                 resultado += toRoma(valores[i]);
