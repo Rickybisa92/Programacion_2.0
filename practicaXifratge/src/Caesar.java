@@ -37,7 +37,7 @@ public class Caesar {
         // Asegurarse de que el delta esté dentro del rango de 0 a 25 (alfabeto de 26 letras)
         delta = delta % 26;
 
-        String caracteresEspeciales = "ÁÉÍÓÚÀÈÌÒÙÇ";
+        String caracteresEspeciales = "ÁÃÂÉÍÓÚÀÈÌÒÙÇ";
 
         for (int i = 0; i < s.length(); i++) {
             char caracter = s.charAt(i);
@@ -58,32 +58,38 @@ public class Caesar {
 
     static String magic(String s, String ss) {
 
-        // Creamos un array de caracteres para guardar la versión descifrada
-        char[] resultado = new char[s.length()];
+      char letraS = letraMasRepetida(s);
+        char letraSS = letraMasRepetida(ss);
 
-        // Recorremos la cadena cifrada y asignamos la letra correspondiente
-        for (int i = 0; i < s.length(); i++) {
-            char cifrado = s.charAt(i);
-            char original = ss.charAt(i);
+        int delta = letraS - letraSS;
+        return decypher(s, delta);
 
-            if (Character.isLetter(cifrado)) {
-                // Si la letra es alfabética, asignamos la letra correspondiente de 'ss' a 'resultado'
-                if (Character.isLowerCase(cifrado)) {
-                    // Si la letra es minúscula, la asignamos tal cual
-                    resultado[i] = Character.toLowerCase(original);
-                } else {
-                    // Si la letra es mayúscula, la asignamos tal cual
-                    resultado[i] = Character.toUpperCase(original);
-                }
-            } else {
-                // Si no es una letra (por ejemplo, un espacio o puntuación), no la tocamos
-                resultado[i] = cifrado;
+
+    }
+
+    static char letraMasRepetida(String texto) {
+        int[] contarLetras = new int[26];  // Array para contar letras A-Z
+        texto = texto.toUpperCase();  // Convertir todo a mayúsculas para evitar errores
+
+        for (char caracter : texto.toCharArray()) {
+            if (caracter >= 'A' && caracter <= 'Z') {  // Solo contar letras A-Z
+                contarLetras[caracter - 'A']++;
             }
         }
 
-        // Convertimos el array de caracteres en un String y lo retornamos
-        return new String(resultado);
+        int max = 0;
+        char letraMasFrecuente = 'A'; // Valor por defecto
+
+        for (int i = 0; i < 26; i++) {
+            if (contarLetras[i] > max) {
+                max = contarLetras[i];
+                letraMasFrecuente = (char) ('A' + i);
+            }
+        }
+
+        return letraMasFrecuente;
     }
+
 
 
 }
