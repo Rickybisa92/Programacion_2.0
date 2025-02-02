@@ -1,59 +1,51 @@
 
 public class Caesar {
     static String cypher(String s, int delta) {
-        s = s.toUpperCase(); // Convertir el texto de entrada a mayúsculas
-
-        char[] resultado = new char[s.length()]; // Array para almacenar el resultado
-
-        // Definir las vocales acentuadas que no deben ser modificadas
-        String caracteresEspeciales = "ÁÉÍÓÚÀÈÌÒÙÇ";
-
-        for (int i = 0; i < s.length(); i++) { // Recorrer todos los caracteres
-            char caracter = s.charAt(i); // Obtener el carácter actual
-
-            // Si es una vocal acentuada, no la modificamos
-            if (caracteresEspeciales.indexOf(caracter) != -1) {
-                resultado[i] = caracter; // Dejar la vocal acentuada tal cual
-
-            } else if (Character.isLetter(caracter)) { // Si es una letra normal
-                // Calcular el nuevo carácter (base 'A' para mayúsculas)
-                caracter = (char) ('A' + (caracter - 'A' + delta) % 26);
-                resultado[i] = caracter;
-
-            } else { // Si no es una letra (como espacios o puntuación), lo dejamos tal cual
-                resultado[i] = caracter;
-            }
-        }
-        return new String(resultado); // Convertir el array en un String
+        return procesarTexto(s, controlDelta(delta), true);
     }
 
     static String decypher(String s, int delta) {
 
-        s = s.toUpperCase();
+        return procesarTexto(s,controlDelta(-delta),false);
+    }
 
-        char[] resultado = new char[s.length()];
+    static int controlDelta(int delta) {
+        int resto = delta % 26; // Obtenemos el resto
 
+        if (resto < 0) { // Si el resto fuese negativo le sumamos 26
+            resto += 26;
+        }
 
-        // Asegurarse de que el delta esté dentro del rango de 0 a 25 (alfabeto de 26 letras)
-        delta = delta % 26;
+        return resto; // Y devolvemos el resultado que nunca sera negativo y se mantiene en el rango
+    }
 
-        String caracteresEspeciales = "ÁÃÂÉÍÓÚÀÈÌÒÙÇ";
+    static String procesarTexto(String s, int delta, boolean isCypher) {
+        s = s.toUpperCase(); // Convertimos el texto a mayúsculas
+        char[] resultado = new char[s.length()]; // Array para almacenar el resultado
 
         for (int i = 0; i < s.length(); i++) {
             char caracter = s.charAt(i);
 
-            if (caracteresEspeciales.indexOf(caracter) != -1) {
-                resultado[i] = caracter;
+            // Solo modificamos los caracteres dentro del rango 'A' a 'Z'
+            if (caracter >= 'A' && caracter <= 'Z') {
+                int posicion = caracter - 'A'; // Calculamos la posicion del caracter restandole 'A'
+                                                // Ejemplo: caracter = 'C', posicion = 'C' - 'A' = 2
 
-            } else if (Character.isLetter(caracter)) {
-                caracter = (char) ('A' + (caracter - 'A' - delta + 26) % 26);
-                resultado[i] = caracter;
+                int nuevaPosicion = (posicion + delta) % 26; //Sumamos el delta a la posicion indicada
+                                                            // Ejemplo: Posicion 2, delta 3, (2+3) % 26 = 5
 
-            } else {
-                resultado[i] = caracter;
+                if (nuevaPosicion < 0) { //Si el resultado fuese negativo, le sumamos 26 para convertirlo en positivo
+                    nuevaPosicion += 26;
+                }
+
+                caracter = (char) ('A' + nuevaPosicion); //Convertimos el numero en caracter
             }
+
+            // Dejamos todos los demás caracteres intactos
+            resultado[i] = caracter;
         }
-        return new String(resultado);
+
+        return new String(resultado); // Convertimos el array en un String
     }
 
     static String magic(String s, String ss) {
@@ -78,7 +70,7 @@ public class Caesar {
         }
 
         int max = 0;
-        char letraMasFrecuente = 'A'; // Valor por defecto
+        char letraMasFrecuente = 'A'; // Valor por defectopublic
 
         for (int i = 0; i < 26; i++) {
             if (contarLetras[i] > max) {
