@@ -14,13 +14,26 @@ public class Vigenere {
 
     }
 
+    static String normalizarTexto(String texto) {
+        return texto.toUpperCase()
+                .replace("À", "A")
+                .replace("É", "E")
+                .replace("È", "E")
+                .replace("Í", "I")
+                .replace("Ó", "O")
+                .replace("Ò", "O")
+                .replace("Ú", "U");
+    }
+
     static String procesarTexto(String s, String password, boolean esEncode) {
+        s = normalizarTexto(s); // Convertimos el texto a mayúsculas
+        password = normalizarTexto(password); // Convertimos la contraseña a mayúsculas
+
         char[] resultado = new char[s.length()]; // Array para almacenar el resultado
 
         // Para que la contraseña pueda cubrir la longitud del texto
         int indicePassword = 0;
 
-        String caracteresEspeciales = "ÒÓÈÉ";
 
         for (int i = 0; i < s.length(); i++) {
             char caracter = s.charAt(i);
@@ -42,8 +55,7 @@ public class Vigenere {
 
     // Función encargada de manejar cada caracter individualmente
     static char procesarCaracter(char caracter, String password, int indicePassword, boolean esEncode) {
-        // Si es una letra mayúscula o minúscula, la procesamos
-        if (Character.isLetter(caracter)) {
+
             // Convertimos el caracter a mayúscula para simplificar el cifrado
             char caracterMayuscula = Character.toUpperCase(caracter);
 
@@ -64,10 +76,7 @@ public class Vigenere {
 
             // Convertimos el número de la nueva posición en un carácter
             return (char) ('A' + posicionNueva);
-        } else {
-            // Si no es una letra (es un espacio, acento, símbolo, etc.), lo dejamos intacto
-            return caracter;
-        }
+
     }
 }
 
