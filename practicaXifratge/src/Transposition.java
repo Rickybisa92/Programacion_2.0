@@ -7,13 +7,14 @@ public class Transposition {
     }
 
     private static char[][] matrizCifrado(String s, int dim) {
-        int filas = s.length() / dim;
+        int filas = s.length() / dim; // Número de filas
         if (s.length() % dim != 0) {
             filas++;
         }
 
-        char[][] matriz = new char[filas][dim];
-        int index = 0;
+        char[][] matriz = new char[filas][dim]; // Rellenar por filas
+        int index = 0; // Indice de la cadena
+
         for (int i = 0; i < filas; i++) {
             for (int j = 0; j < dim; j++) {
                 if (index < s.length()) {
@@ -45,18 +46,16 @@ public class Transposition {
         return leerFilas(matriz);
     }
 
-    static char[][] matrizDescifrado(String s, int dim) {
-        int filas = s.length() / dim;
-        if (s.length() % dim != 0) {
-            filas = filas + 1;
-        } else {
-            filas = filas;
-        }
+    private static char[][] matrizDescifrado(String s, int dim) {
+        int filas = (s.length() + dim - 1) / dim;
 
         char[][] matriz = new char[filas][dim];
         int index = 0;
-        for (int j = 0; j < dim; j++) {
-            for (int i = 0; i < filas; i++) {
+        int extraChars = s.length() % dim;
+
+        for (int j = 0; j < dim; j++) { // Rellenar por columnas
+            int limite = (j < extraChars || extraChars == 0) ? filas : filas - 1;
+            for (int i = 0; i < limite; i++) {
                 if (index < s.length()) {
                     matriz[i][j] = s.charAt(index);
                     index++;
@@ -66,13 +65,12 @@ public class Transposition {
             }
         }
         return matriz;
-
     }
 
     static String leerFilas(char[][] matriz) {
         String result = "";
         for (int i = 0; i < matriz.length; i++) {
-            for (int j = 0; j < matriz[i].length; j++) {
+            for (int j = 0; j < matriz[0].length; j++) {
                 if (matriz[i][j] != '\0') {
                     result += matriz[i][j];
                 }
