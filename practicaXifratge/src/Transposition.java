@@ -6,7 +6,7 @@ public class Transposition {
         return leerColumnas(matriz, dim);
     }
 
-    private static char[][] matrizCifrado(String s, int dim) {
+    static char[][] matrizCifrado(String s, int dim) {
         int filas = s.length() / dim; // Número de filas
         if (s.length() % dim != 0) {
             filas++;
@@ -46,7 +46,7 @@ public class Transposition {
         return leerFilas(matriz);
     }
 
-    private static char[][] matrizDescifrado(String s, int dim) {
+    static char[][] matrizDescifrado(String s, int dim) {
         int filas = (s.length() + dim - 1) / dim;
 
         char[][] matriz = new char[filas][dim];
