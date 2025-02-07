@@ -153,23 +153,54 @@ public class Transposition {
         return leerFilasKey(matriz);
     }
 
+    // Reconstruye la matriz original a partir del texto cifrado 's', usando la clave
+    // 'indice' contiene el orden ascendente de las columnas (según la clave)
+    // 'columnas' es la longitud de la clave
     static char[][] reconstruirMatriz(String s, Integer[] indice, int columnas) {
-        int filas = (s.length() + columnas + 1) / columnas;
-        char[][] matriz = new char[filas][columnas];
-        int indiceCadena = 0;
 
-        // Rellenar la matriz con el texto cifrado en el orden correcto de las columnas
-        for (int col : indice) {
-            for (int fila = 0; fila < filas; fila++) {
+        // Calcular cuántas letras habría en cada columna
+        // Las columnas que van a la izquierda (en el orden original) recibirán una letra extra
+        int fullCols = s.length() % columnas; // Número de columnas con la última fila completa
+        int filas = s.length() / columnas;
+        if (fullCols > 0) {
+            filas++; // Si hay residuo, se necesita una fila extra
+        }
+
+        char[][] matriz = new char[filas][columnas]; // Crear la matriz
+
+        // Inicializar la matriz con espacios para evitar celdas sin asignar
+        for (int i = 0; i < filas; i++) {
+            for (int j = 0; j < columnas; j++) {
+                matriz[i][j] = ' ';
+            }
+        }
+        int indiceCadena = 0; // Índice para recorrer el texto cifrado 's'
+
+        // Rellenar la matriz columna por columna según el orden indicado por 'indice'
+        // 'indice' es el array con el orden ascendente de las columnas (por ejemplo, para \"BAC\" se obtiene [1, 0, 2])
+        for (int i = 0; i < indice.length; i++) {
+            int col = indice[i]; // 'col' es la posición original de la columna
+            int blockLength;    // Número de letras que deben ir en esta columna
+            // Las primeras 'fullCols' columnas (según la posición original) tendrán 'filas' letras
+            // Las demás tendrán 'filas - 1' letras
+            if (fullCols == 0 || col < fullCols) {
+                blockLength = filas;
+            } else {
+                blockLength = filas - 1;
+            }
+
+            // Rellenar la columna 'col' con 'blockLength' letras del texto cifrado
+            for (int fila = 0; fila < blockLength; fila++) {
                 if (indiceCadena < s.length()) {
                     matriz[fila][col] = s.charAt(indiceCadena++);
                 } else {
-                    matriz[fila][col] = '\0';
+                    matriz[fila][col] = ' ';
                 }
             }
         }
         return matriz;
-    }
+
+        }
 
     static String leerFilasKey(char[][] matriz) {
         // Calcular el tamaño máximo del resultado
@@ -198,7 +229,7 @@ public class Transposition {
         }
 
         // Convertir el array de caracteres a String
-        return new String(result); // Eliminar espacios adicionales
+        return new String(result).trim(); // Eliminar espacios adicionales
     }
 
     static Integer[] ordenarClaveInverso(String clave) {
@@ -213,7 +244,7 @@ public class Transposition {
         // Ordenar los índices manualmente con el algoritmo de la burbuja
         for (int i = 0; i < longitudClave - 1; i++) {
             for (int j = i + 1; j < longitudClave; j++) {
-                if (clave.charAt(indice[i]) < clave.charAt(indice[j])) {
+                if (clave.charAt(indice[i]) > clave.charAt(indice[j])) {
                     // Intercambiar los índices si están en el orden incorrecto
                     int temp = indice[i];
                     indice[i] = indice[j];
