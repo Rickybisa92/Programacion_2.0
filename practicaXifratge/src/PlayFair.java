@@ -7,76 +7,83 @@ public class PlayFair {
 
     public static String encrypt(String text, String pass) {
         char[][] claveMatriz = generarClaveMatriz(pass);
-        String cleanText = prepareText(text);
-        String[] digrams = createDigrams(cleanText);
+        String textoLimpio = prepararTexto(text);
+        String[] digramas = crearDigramas(textoLimpio);
 
         String result = "";
-        for (int i = 0; i < digrams.length; i++) {
-            if (i > 0) result += " ";
-            result += encryptDigram(digrams[i], claveMatriz);
+        for (int i = 0; i < digramas.length; i++) { // Cifrar cada digrama
+            if (i > 0) result += " "; // Agregar espacio entre digramas
+            result += encryptDigrama(digramas[i], claveMatriz); // Cifrar digrama y agregar al resultado
         }
         return result;
     }
 
     public static String decrypt(String text, String pass) {
         char[][] claveMatriz = generarClaveMatriz(pass);
-        String cleanEncrypted = removeSpaces(text);
+        String textoEcriptadoLimpio = eliminarEspacios(text);
 
         String result = "";
-        for (int i = 0; i < cleanEncrypted.length(); i += 2) {
-            String digram = "" + cleanEncrypted.charAt(i) + cleanEncrypted.charAt(i + 1);
+        for (int i = 0; i < textoEcriptadoLimpio.length(); i += 2) { // Descifrar cada digrama
+            String digrama = "" + textoEcriptadoLimpio.charAt(i) + textoEcriptadoLimpio.charAt(i + 1); // Digrama a descifrar
             if (i > 0) result += " ";
-            result += decryptDigram(digram, claveMatriz);
+            result += decryptDigrama(digrama, claveMatriz);
         }
         return result;
     }
 
-    static char[][] generarClaveMatriz(String key) {
-        String cleanKey = "";
-        key = key.toUpperCase();
-        for (int i = 0; i < key.length(); i++) {
-            char c = key.charAt(i);
-            c = convertirCaracteresEspeciales(c);
-            if (c >= 'A' && c <= 'Z') {
-                if (!cleanKey.contains(String.valueOf(c))) {
-                    cleanKey += c;
+
+    // Generar matriz de clave a partir de la clave
+    static char[][] generarClaveMatriz(String clave) {
+        String claveLimpia = ""; // Clave sin caracteres repetidos
+        clave = clave.toUpperCase();
+
+        for (int i = 0; i < clave.length(); i++) {
+            char c = clave.charAt(i);
+            c = convertirCaracteresEspeciales(c); // Convertir caracteres especiales
+            if (c >= 'A' && c <= 'Z') { // Solo caracteres válidos
+                if (!claveLimpia.contains(String.valueOf(c))) { // No repetir caracteres
+                    claveLimpia += c; // Agregar caracter a la clave
                 }
             }
         }
 
-        String alphabet = "ABCDEFGHIKLMNOPQRSTUVWXYZ";
-        for (int i = 0; i < alphabet.length(); i++) {
-            char c = alphabet.charAt(i);
-            if (!cleanKey.contains(String.valueOf(c))) {
-                cleanKey += c;
+        String alfabeto = "ABCDEFGHIKLMNOPQRSTUVWXYZ"; // Alfabeto sin la J
+        for (int i = 0; i < alfabeto.length(); i++) { // Agregar caracteres del alfabeto que no estén en la clave
+            char c = alfabeto.charAt(i);
+            if (!claveLimpia.contains(String.valueOf(c))) {
+                claveLimpia += c;
             }
         }
 
-        char[][] matrix = new char[5][5];
+        char[][] matriz = new char[5][5]; // Matriz de clave
         int index = 0;
         for (int r = 0; r < 5; r++) {
             for (int c = 0; c < 5; c++) {
-                matrix[r][c] = cleanKey.charAt(index++);
+                matriz[r][c] = claveLimpia.charAt(index++); // Llenar la matriz con la clave
             }
         }
-        return matrix;
+        return matriz;
     }
 
-    static String prepareText(String text) {
-        String clean = "";
-        text = text.toUpperCase();
-        for (int i = 0; i < text.length(); i++) {
-            char c = text.charAt(i);
+
+    // Preparar texto para cifrado / descifrado eliminando caracteres no válidos y convirtiendo a mayúsculas
+    static String prepararTexto(String texto) {
+        String limpio = "";
+        texto = texto.toUpperCase();
+        for (int i = 0; i < texto.length(); i++) {
+            char c = texto.charAt(i);
             c = convertirCaracteresEspeciales(c);
             if (c >= 'A' && c <= 'Z') {
-                clean += c;
+                limpio += c;
             }
         }
-        return clean;
+        return limpio;
     }
 
+
+    // Convertir caracteres acentuados y especiales a sus equivalentes sin acento
     static char convertirCaracteresEspeciales(char c) {
-        // Mapear caracteres acentuados y especiales a sus equivalentes sin acento
+
         if (c == 'á' || c == 'à' || c == 'â' || c == 'ä' || c == 'ã'
                 || c == 'Á' || c == 'À' || c == 'Â' || c == 'Ä' || c == 'Ã') {
             return 'A';
@@ -102,13 +109,15 @@ public class PlayFair {
     }
 
 
-    static String[] createDigrams(String text) {
-        String newText = "";
-        int i = 0;
-        while (i < text.length()) {
-            char first = text.charAt(i);
-            char second = (i + 1 < text.length()) ? text.charAt(i + 1) : 'X';
 
+    // Crear digramas a partir de un texto (si es necesario, agregar una X al final)
+    static String[] crearDigramas(String texto) {
+        String nuevoTexto = ""; // Texto con X agregada si es necesario
+        int i = 0;
+        while (i < texto.length()) { // Crear digramas a partir del texto limpio
+            char first = texto.charAt(i); // Primer caracter del digrama
+            char second = (i + 1 < texto.length()) ? texto.charAt(i + 1) : 'X'; // Segundo caracter del digrama
+                                                                                //(si no hay, usar X)
             if (first == second) {
                 second = 'X';
                 i++;
@@ -116,65 +125,72 @@ public class PlayFair {
                 i += 2;
             }
 
-            newText += first;
-            newText += second;
+            nuevoTexto += first;
+            nuevoTexto += second;
         }
 
-        if (newText.length() % 2 != 0) {
-            newText += "X";
+        if (nuevoTexto.length() % 2 != 0) { // Si el texto tiene una longitud impar, agregar una X al final
+            nuevoTexto += "X";
         }
 
-        int numDigrams = newText.length() / 2;
-        String[] digrams = new String[numDigrams];
+        int numDigramas = nuevoTexto.length() / 2; // Número de digramas en el texto limpio
+        String[] digramas = new String[numDigramas]; // Arreglo de digramas
 
-        for (i = 0; i < numDigrams; i++) {
-            digrams[i] = newText.substring(i * 2, i * 2 + 2);
+        for (i = 0; i < numDigramas; i++) { // Crear digramas a partir del texto limpio
+            digramas[i] = nuevoTexto.substring(i * 2, i * 2 + 2); // Agregar digrama al arreglo de digramas
         }
-        return digrams;
+        return digramas;
     }
 
-    static String removeSpaces(String s) {
+    // Eliminar espacios en blanco de una cadena
+    static String eliminarEspacios(String s) {
         return s.replace(" ", "");
     }
 
-    private static String encryptDigram(String digram, char[][] matrix) {
-        return processDigram(digram, matrix, true);
+
+    // Cifrar un diagrama utilizando la matriz de clave
+    private static String encryptDigrama(String digram, char[][] matriz) {
+        return procesarDigrama(digram, matriz, true);
     }
 
-    private static String decryptDigram(String digram, char[][] matrix) {
-        return processDigram(digram, matrix, false);
+
+    //Descifrar un diagrama utilizando la matriz de clave
+    private static String decryptDigrama(String digram, char[][] matriz) {
+        return procesarDigrama(digram, matriz, false);
     }
 
-    private static String processDigram(String digram, char[][] matrix, boolean encrypt) {
-        char a = digram.charAt(0);
-        char b = digram.charAt(1);
-        int row1 = -1, col1 = -1, row2 = -1, col2 = -1;
+
+    // Procesar un digrama (cifrado o descifrado) utilizando la matriz de clave
+    private static String procesarDigrama(String digrama, char[][] matriz, boolean cifrar) {
+        char a = digrama.charAt(0); // Primer caracter del digrama
+        char b = digrama.charAt(1); // Segundo caracter del digrama
+        int fila1 = -1, col1 = -1, fila2 = -1, col2 = -1; // Fila y columna de cada caracter en la matriz
 
         for (int r = 0; r < 5; r++) {
             for (int c = 0; c < 5; c++) {
-                if (matrix[r][c] == a) {
-                    row1 = r; col1 = c;
+                if (matriz[r][c] == a) {
+                    fila1 = r; col1 = c;
                 }
-                if (matrix[r][c] == b) {
-                    row2 = r; col2 = c;
+                if (matriz[r][c] == b) {
+                    fila2 = r; col2 = c;
                 }
             }
         }
 
-        int shift = encrypt ? 1 : 4;
+        int shift = cifrar ? 1 : 4;
         char c1, c2;
 
-        if (row1 == row2) {  // Misma fila → mover a la derecha (cifrado) o izquierda (descifrado)
-            c1 = matrix[row1][(col1 + shift + 5) % 5];
-            c2 = matrix[row2][(col2 + shift + 5) % 5];
+        if (fila1 == fila2) {  // Misma fila → mover a la derecha (cifrado) o izquierda (descifrado)
+            c1 = matriz[fila1][(col1 + shift + 5) % 5];
+            c2 = matriz[fila2][(col2 + shift + 5) % 5];
 
         } else if (col1 == col2) {  // Misma columna → mover hacia abajo (cifrado) o arriba (descifrado)
-            c1 = matrix[(row1 + shift + 5) % 5][col1];
-            c2 = matrix[(row2 + shift + 5) % 5][col2];
+            c1 = matriz[(fila1 + shift + 5) % 5][col1];
+            c2 = matriz[(fila2 + shift + 5) % 5][col2];
 
         } else {  // Diferente fila y columna → formar un rectángulo y cambiar las letras de columna
-            c1 = matrix[row1][col2];
-            c2 = matrix[row2][col1];
+            c1 = matriz[fila1][col2];
+            c2 = matriz[fila2][col1];
         }
         return "" + c1 + c2;
     }
