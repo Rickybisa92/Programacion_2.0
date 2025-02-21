@@ -1,129 +1,143 @@
 public class Bender {
-    private char[][] grid;    // Mapa representado en una matriz de caracteres
-    private int rows, cols;   // Dimensiones del mapa
-    private int posX, posY;   // Posición actual del robot
-    private char currentDirection = 'S';  // Dirección inicial: Sur
-    private boolean inverted = false;     // Modo de prioridad (false = normal, true = invertido)
+    private char[][] mapa;
+    private int filas, columnas;
+    private int posX, posY;
+    private char direccionActual = 'S';
+    private boolean invertido = false;
 
-    // Arrays para almacenar las coordenadas de los teleportadores
-    private int[] teleporterX;
-    private int[] teleporterY;
-    private int numTeleporters = 0;
+    private int[] teletransportadorX;
+    private int[] teletransportadorY;
+    private int numTeletransportadores = 0;
 
-    // Constructor: convierte el mapa en un array bidimensional y localiza la posición de "X" y los "T"
     public Bender(String mapaStr) {
-        String[] lines = mapaStr.split("\n");
-        rows = lines.length;
-        cols = lines[0].length();
-        grid = new char[rows][cols];
+        String[] lineas = mapaStr.split("\n");
+        filas = lineas.length;
+        columnas = lineas[0].length();
+        mapa = new char[filas][columnas];
 
-        // Primero, contamos cuántos teleportadores hay para poder crear los arrays
-        for (int i = 0; i < rows; i++) {
-            for (int j = 0; j < cols; j++) {
-                char c = lines[i].charAt(j);
-                grid[i][j] = c;
+        // Contar teletransportadores y cargar el mapa
+        for (int i = 0; i < filas; i++) {
+            for (int j = 0; j < columnas; j++) {
+                char c = lineas[i].charAt(j);
+                mapa[i][j] = c;
                 if (c == 'X') {
                     posX = i;
                     posY = j;
                 }
                 if (c == 'T') {
-                    numTeleporters++;
+                    numTeletransportadores++;
                 }
             }
         }
 
-        // Creamos los arrays con el tamaño adecuado y almacenamos las posiciones de los teleportadores
-        teleporterX = new int[numTeleporters];
-        teleporterY = new int[numTeleporters];
-        int index = 0;
-        for (int i = 0; i < rows; i++) {
-            for (int j = 0; j < cols; j++) {
-                if (grid[i][j] == 'T') {
-                    teleporterX[index] = i;
-                    teleporterY[index] = j;
-                    index++;
+        // Almacenar las coordenadas de los teletransportadores en arrays
+        teletransportadorX = new int[numTeletransportadores];
+        teletransportadorY = new int[numTeletransportadores];
+        int indice = 0;
+        for (int i = 0; i < filas; i++) {
+            for (int j = 0; j < columnas; j++) {
+                if (mapa[i][j] == 'T') {
+                    teletransportadorX[indice] = i;
+                    teletransportadorY[indice] = j;
+                    indice++;
                 }
             }
         }
     }
 
-    // Método que simula el recorrido de Bender hasta llegar al destino ('$')
+    // Obtiene el índice de la dirección: S=0, E=1, N=2, W=3
+    private int obtenerIndiceDireccion(char d) {
+        if (d == 'S') return 0;
+        if (d == 'E') return 1;
+        if (d == 'N') return 2;
+        if (d == 'W') return 3;
+        return -1;
+    }
+
+    // Calcula un índice único para el estado actual (posición, dirección e invertido)
+    private int obtenerIndiceEstado() {
+        int estadoDir = obtenerIndiceDireccion(direccionActual);
+        if (invertido) {
+            estadoDir += 4; // Si está invertido, el estado será entre 4 y 7
+        }
+        return ((posX * columnas + posY) * 8) + estadoDir;
+    }
+
+    // Simula el recorrido de Bender y retorna la cadena de movimientos
     public String run() {
-        // Usamos una cadena para ir concatenando cada movimiento
-        String path = "";
+        String camino = "";
+        // Array para marcar estados visitados. Tamaño: filas * columnas * 8.
+        boolean[] visitado = new boolean[filas * columnas * 8];
 
-        // Se continúa mientras no se alcance la celda destino ('$')
-        while (grid[posX][posY] != '$') {
-            int[] delta = getDelta(currentDirection);
-            int newX = posX + delta[0];
-            int newY = posY + delta[1];
+        while (mapa[posX][posY] != '$') {
+            int indiceEstado = obtenerIndiceEstado();
+            if (visitado[indiceEstado]) {
+                // Si se repite el estado, se detecta un ciclo infinito: se retorna null
+                return null;
+            }
+            visitado[indiceEstado] = true;
 
-            // Si se puede avanzar en la dirección actual, se mueve
-            if (isValid(newX, newY)) {
-                posX = newX;
-                posY = newY;
-                path = path + currentDirection;
+            int[] delta = obtenerDelta(direccionActual);
+            int nuevoX = posX + delta[0];
+            int nuevoY = posY + delta[1];
+
+            if (esValido(nuevoX, nuevoY)) {
+                posX = nuevoX;
+                posY = nuevoY;
+                camino = camino + direccionActual;
             } else {
-                // Si hay obstáculo, se recorre el orden de prioridades según el modo actual
-                char[] priorities;
-                if (!inverted) {
-                    priorities = new char[]{'S', 'E', 'N', 'W'};
-                } else {
-                    priorities = new char[]{'N', 'W', 'S', 'E'};
-                }
-                boolean moved = false;
-                for (int i = 0; i < priorities.length; i++) {
-                    char d = priorities[i];
-                    int[] dDelta = getDelta(d);
-                    int nx = posX + dDelta[0];
-                    int ny = posY + dDelta[1];
-                    if (isValid(nx, ny)) {
-                        currentDirection = d;
+                // Dependiendo del modo, se usan prioridades distintas
+                char[] prioridades = invertido
+                        ? new char[]{'N', 'W', 'S', 'E'}
+                        : new char[]{'S', 'E', 'N', 'W'};
+                boolean seMovio = false;
+                for (int i = 0; i < prioridades.length; i++) {
+                    char d = prioridades[i];
+                    int[] deltaD = obtenerDelta(d);
+                    int nx = posX + deltaD[0];
+                    int ny = posY + deltaD[1];
+                    if (esValido(nx, ny)) {
+                        direccionActual = d;
                         posX = nx;
                         posY = ny;
-                        path = path + d;
-                        moved = true;
+                        camino = camino + d;
+                        seMovio = true;
                         break;
                     }
                 }
-                // En un mapa correcto siempre habrá al menos un movimiento posible
-                if (!moved) {
-                    break;
+                if (!seMovio) {
+                    return null;
                 }
             }
 
-            // Comprobación de dispositivos especiales en la celda actual
-            char cell = grid[posX][posY];
-            if (cell == 'I') {
-                // Inversor: cambia el orden de prioridades
-                inverted = !inverted;
-            } else if (cell == 'T') {
-                // Teletransportador: se busca el otro (o el más cercano, si hay más de dos)
-                if (numTeleporters > 1) {
-                    int bestDistance = 1000000;
-                    int bestX = posX;
-                    int bestY = posY;
-                    for (int i = 0; i < numTeleporters; i++) {
-                        if (teleporterX[i] == posX && teleporterY[i] == posY)
+            // Procesar dispositivos especiales
+            char celda = mapa[posX][posY];
+            if (celda == 'I') {
+                invertido = !invertido;
+            } else if (celda == 'T') {
+                if (numTeletransportadores > 1) {
+                    int mejorDistancia = Integer.MAX_VALUE;
+                    int mejorX = posX, mejorY = posY;
+                    for (int i = 0; i < numTeletransportadores; i++) {
+                        if (teletransportadorX[i] == posX && teletransportadorY[i] == posY)
                             continue;
-                        int dist = Math.abs(teleporterX[i] - posX) + Math.abs(teleporterY[i] - posY);
-                        if (dist < bestDistance) {
-                            bestDistance = dist;
-                            bestX = teleporterX[i];
-                            bestY = teleporterY[i];
+                        int distancia = Math.abs(teletransportadorX[i] - posX) + Math.abs(teletransportadorY[i] - posY);
+                        if (distancia < mejorDistancia) {
+                            mejorDistancia = distancia;
+                            mejorX = teletransportadorX[i];
+                            mejorY = teletransportadorY[i];
                         }
                     }
-                    posX = bestX;
-                    posY = bestY;
+                    posX = mejorX;
+                    posY = mejorY;
                 }
-                // Si solo hay un teletransportador, no se realiza la teletransportación
             }
         }
-        return path;
+        return camino;
     }
 
-    // Método auxiliar: devuelve el desplazamiento (delta) para cada dirección
-    private int[] getDelta(char d) {
+    // Retorna el desplazamiento (delta) para cada dirección
+    private int[] obtenerDelta(char d) {
         if (d == 'N') return new int[]{-1, 0};
         if (d == 'S') return new int[]{1, 0};
         if (d == 'E') return new int[]{0, 1};
@@ -131,10 +145,10 @@ public class Bender {
         return new int[]{0, 0};
     }
 
-    // Método auxiliar: verifica si la posición (x,y) es válida (dentro del mapa y sin pared)
-    private boolean isValid(int x, int y) {
-        if (x < 0 || x >= rows || y < 0 || y >= cols)
+    // Verifica que la posición (x, y) esté dentro del mapa y no sea una pared
+    private boolean esValido(int x, int y) {
+        if (x < 0 || x >= filas || y < 0 || y >= columnas)
             return false;
-        return grid[x][y] != '#';
+        return mapa[x][y] != '#';
     }
 }
