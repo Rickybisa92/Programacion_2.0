@@ -1,176 +1,267 @@
 public class Bender {
-    private char[][] mapa;
-    private int filas, columnas;
-    private int posX, posY;
-    private char direccionActual = 'S';
-    private boolean invertido = false;
+    // Componentes del sistema
+    Mapa mapa;
+    Robot robot;
+    boolean invertido = false; // Prioridad normal o invertida
 
-    private int[] teletransportadorX;
-    private int[] teletransportadorY;
-    private int numTeletransportadores = 0;
-
-    // Constructor que procesa mapas irregulares (diferentes longitudes de línea)
+    // Constructor: crea el mapa y posiciona el robot en el inicio ('X')
     public Bender(String mapaStr) {
-        String[] lineas = mapaStr.split("\n");
-        filas = lineas.length;
+        mapa = new Mapa(mapaStr);
+        // El robot se inicia en la posición detectada en el mapa (carácter 'X')
+        robot = new Robot(mapa.getInicioFila(), mapa.getInicioCol());
+    }
 
-        // Calcular el número máximo de columnas entre todas las líneas
-        columnas = 0;
-        for (String linea : lineas) {
-            if (linea.length() > columnas) {
-                columnas = linea.length();
-            }
-        }
+    // Invierte la prioridad de movimiento
+    public void invertirPrioridad() {
+        invertido = !invertido;
+    }
 
-        // Crear la matriz y rellenar cada fila;
-        // Si una línea es más corta, se rellenan los espacios faltantes con ' '.
-        mapa = new char[filas][columnas];
-        for (int i = 0; i < filas; i++) {
-            for (int j = 0; j < columnas; j++) {
-                if (j < lineas[i].length()) {
-                    mapa[i][j] = lineas[i].charAt(j);
-                } else {
-                    mapa[i][j] = ' ';
-                }
-            }
-        }
-
-        // Recorrer el mapa para localizar la posición inicial (X) y contar teletransportadores (T)
-        for (int i = 0; i < filas; i++) {
-            for (int j = 0; j < columnas; j++) {
-                char c = mapa[i][j];
-                if (c == 'X') {
-                    posX = i;
-                    posY = j;
-                }
-                if (c == 'T') {
-                    numTeletransportadores++;
-                }
-            }
-        }
-
-        // Almacenar las coordenadas de los teletransportadores en arrays
-        teletransportadorX = new int[numTeletransportadores];
-        teletransportadorY = new int[numTeletransportadores];
-        int indice = 0;
-        for (int i = 0; i < filas; i++) {
-            for (int j = 0; j < columnas; j++) {
-                if (mapa[i][j] == 'T') {
-                    teletransportadorX[indice] = i;
-                    teletransportadorY[indice] = j;
-                    indice++;
-                }
-            }
+    // Devuelve el índice numérico de la dirección actual del robot: S=0, E=1, N=2, W=3.
+    private int obtenerIndiceDireccion() {
+        char d = robot.direccion;
+        switch(d) {
+            case 'S': return 0;
+            case 'E': return 1;
+            case 'N': return 2;
+            case 'W': return 3;
+            default:  return -1;
         }
     }
 
-    // Obtiene el índice de la dirección: S=0, E=1, N=2, W=3.
-    private int obtenerIndiceDireccion(char d) {
-        if (d == 'S') return 0;
-        if (d == 'E') return 1;
-        if (d == 'N') return 2;
-        if (d == 'W') return 3;
-        return -1;
-    }
-
-    // Calcula un índice único para el estado actual (posición, dirección y modo)
+    // Calcula un índice único para el estado actual (posición, dirección y modo invertido)
     // Cada celda tiene 8 posibles estados (4 direcciones × 2 modos).
-    private int obtenerIndiceEstado() {
-        int estadoDir = obtenerIndiceDireccion(direccionActual);
-        if (invertido) {
-            estadoDir += 4;
-        }
-        return ((posX * columnas + posY) * 8) + estadoDir;
+    public int obtenerIndiceEstado() {
+        int dirIndex = obtenerIndiceDireccion();
+        if(invertido)
+            dirIndex += 4;
+        return ((robot.fila * mapa.getColumnas() + robot.col) * 8) + dirIndex;
     }
 
-    // Simula el recorrido de Bender y retorna la cadena de movimientos.
-    // Si se detecta un ciclo, retorna null.
+    // Devuelve el desplazamiento (delta) asociado a una dirección.
+    public int[] obtenerDelta(char d) {
+        switch(d) {
+            case 'N': return new int[]{-1, 0};
+            case 'S': return new int[]{1, 0};
+            case 'E': return new int[]{0, 1};
+            case 'W': return new int[]{0, -1};
+            default:  return new int[]{0, 0};
+        }
+    }
+
+    // Intenta moverse: primero en la dirección actual; si no es posible,
+    // prueba direcciones según prioridad (normal: S,E,N,W; invertido: N,W,S,E).
+    // Actualiza la posición y dirección del robot y retorna el movimiento realizado.
+    public String decidirMovimiento() {
+        int[] delta = obtenerDelta(robot.direccion);
+        int nuevoFila = robot.fila + delta[0];
+        int nuevoCol = robot.col + delta[1];
+        if(mapa.esPasable(nuevoFila, nuevoCol)) {
+            robot.fila = nuevoFila;
+            robot.col = nuevoCol;
+            return String.valueOf(robot.direccion);
+        } else {
+            char[] prioridades = invertido
+                    ? new char[]{'N','W','S','E'}
+                    : new char[]{'S','E','N','W'};
+            for(char d : prioridades) {
+                int[] deltaD = obtenerDelta(d);
+                int nx = robot.fila + deltaD[0];
+                int ny = robot.col + deltaD[1];
+                if(mapa.esPasable(nx, ny)) {
+                    robot.direccion = d;
+                    robot.fila = nx;
+                    robot.col = ny;
+                    return String.valueOf(d);
+                }
+            }
+        }
+        return null;
+    }
+
+    // Procesa los efectos especiales de la celda en la que se encuentra el robot.
+    // Si es un inversor ('I'), invierte la prioridad; si es un teletransportador ('T')
+    // y hay al menos dos, se teletransporta.
+    public void procesarEfectosCelda() {
+        char celda = mapa.getCelda(robot.fila, robot.col);
+        if(celda == 'I') {
+            invertirPrioridad();
+        } else if(celda == 'T' && mapa.getTeletransportadores().length > 1) {
+            teletransportarse();
+        }
+    }
+
+    // Realiza la teletransportación: de entre los teletransportadores (excluyendo el actual),
+    // se elige el de menor distancia Manhattan a la posición actual.
+    public void teletransportarse() {
+        Teletransportador[] tele = mapa.getTeletransportadores();
+        int mejorDist = Integer.MAX_VALUE;
+        int mejorFila = robot.fila;
+        int mejorCol = robot.col;
+        for(Teletransportador t : tele) {
+            if(t.fila == robot.fila && t.col == robot.col)
+                continue;
+            int dist = Math.abs(t.fila - robot.fila) + Math.abs(t.col - robot.col);
+            if(dist < mejorDist) {
+                mejorDist = dist;
+                mejorFila = t.fila;
+                mejorCol = t.col;
+            }
+        }
+        robot.fila = mejorFila;
+        robot.col = mejorCol;
+    }
+
+    // Método run(): simula el recorrido de Bender hasta alcanzar la meta ('$').
+    // Retorna null si se detecta un ciclo.
     public String run() {
         String camino = "";
-        // Array para marcar estados visitados (tamaño: filas * columnas * 8).
-        boolean[] visitado = new boolean[filas * columnas * 8];
-
-        while (mapa[posX][posY] != '$') {
-            // Registrar el estado actual antes de decidir el movimiento.
+        int totalEstados = mapa.getFilas() * mapa.getColumnas() * 8;
+        boolean[] visitado = new boolean[totalEstados];
+        Meta meta = mapa.getMeta();
+        while(robot.fila != meta.fila || robot.col != meta.col) {
             int estadoActual = obtenerIndiceEstado();
-            if (visitado[estadoActual]) {
-                return null; // Se detecta ciclo infinito.
-            }
+            if(visitado[estadoActual])
+                return null; // Ciclo infinito detectado.
             visitado[estadoActual] = true;
 
-            // Decidir el movimiento en función de la dirección actual.
-            int[] delta = obtenerDelta(direccionActual);
-            int nuevoX = posX + delta[0];
-            int nuevoY = posY + delta[1];
-            if (!esValido(nuevoX, nuevoY)) {
-                // Si no se puede avanzar en la dirección actual, probar según prioridades.
-                // Prioridad normal: S, E, N, W; invertido: N, W, S, E.
-                char[] prioridades = invertido
-                        ? new char[]{'N', 'W', 'S', 'E'}
-                        : new char[]{'S', 'E', 'N', 'W'};
-                boolean seMovio = false;
-                for (int i = 0; i < prioridades.length; i++) {
-                    char d = prioridades[i];
-                    int[] deltaD = obtenerDelta(d);
-                    int nx = posX + deltaD[0];
-                    int ny = posY + deltaD[1];
-                    if (esValido(nx, ny)) {
-                        direccionActual = d;
-                        posX = nx;
-                        posY = ny;
-                        camino = camino + d;
-                        seMovio = true;
-                        break;
-                    }
-                }
-                if (!seMovio) {
-                    return null;
-                }
-            } else {
-                posX = nuevoX;
-                posY = nuevoY;
-                camino = camino + direccionActual;
-            }
+            String mov = decidirMovimiento();
+            if(mov == null)
+                return null;
+            camino += mov;
 
-            // Tras moverse, aplicar los efectos especiales de la celda actual.
-            char celda = mapa[posX][posY];
-            if (celda == 'I') {
-                invertido = !invertido;
-            } else if (celda == 'T' && numTeletransportadores > 1) {
-                int mejorDistancia = Integer.MAX_VALUE;
-                int mejorX = posX, mejorY = posY;
-                for (int i = 0; i < numTeletransportadores; i++) {
-                    if (teletransportadorX[i] == posX && teletransportadorY[i] == posY)
-                        continue;
-                    int distancia = Math.abs(teletransportadorX[i] - posX) +
-                            Math.abs(teletransportadorY[i] - posY);
-                    if (distancia < mejorDistancia) {
-                        mejorDistancia = distancia;
-                        mejorX = teletransportadorX[i];
-                        mejorY = teletransportadorY[i];
-                    }
-                }
-                posX = mejorX;
-                posY = mejorY;
-                // La teletransportación no añade un movimiento en el camino.
-            }
+            procesarEfectosCelda();
         }
         return camino;
     }
+}
 
-    // Retorna el desplazamiento (delta) para cada dirección.
-    private int[] obtenerDelta(char d) {
-        if (d == 'N') return new int[]{-1, 0};
-        if (d == 'S') return new int[]{1, 0};
-        if (d == 'E') return new int[]{0, 1};
-        if (d == 'W') return new int[]{0, -1};
-        return new int[]{0, 0};
+
+// ----------------- Clases auxiliares -----------------
+
+// Representa el mapa del juego. Se crea a partir de un String de entrada.
+class Mapa {
+    char[][] mapa;
+    int filas, columnas;
+    int inicioFila, inicioCol;
+    Meta meta;
+    Teletransportador[] teletransportadores;
+
+    // Constructor: crea el mapa a partir de un String de entrada.
+    public Mapa(String mapaStr) {
+        String[] lineas = mapaStr.split("\n");
+        filas = lineas.length;
+        columnas = 0;
+        for(String linea : lineas) {
+            if(linea.length() > columnas)
+                columnas = linea.length();
+        }
+        mapa = new char[filas][columnas];
+        for (int i = 0; i < filas; i++) {
+            for (int j = 0; j < columnas; j++) {
+                if(j < lineas[i].length())
+                    mapa[i][j] = lineas[i].charAt(j);
+                else
+                    mapa[i][j] = ' ';
+            }
+        }
+        int teleCount = 0;
+        for (int i = 0; i < filas; i++) {
+            for (int j = 0; j < columnas; j++) {
+                char c = mapa[i][j];
+                if(c == 'X') {
+                    inicioFila = i;
+                    inicioCol = j;
+                }
+                if(c == '$') {
+                    meta = new Meta(i, j);
+                }
+                if(c == 'T') {
+                    teleCount++;
+                }
+            }
+        }
+        teletransportadores = new Teletransportador[teleCount];
+        int idx = 0;
+        for (int i = 0; i < filas; i++) {
+            for (int j = 0; j < columnas; j++) {
+                if(mapa[i][j] == 'T') {
+                    teletransportadores[idx++] = new Teletransportador(i, j);
+                }
+            }
+        }
     }
 
-    // Verifica que la posición (x, y) esté dentro del mapa y no sea una pared ('#').
-    private boolean esValido(int x, int y) {
-        if (x < 0 || x >= filas || y < 0 || y >= columnas)
+    public int getFilas() {
+        return filas;
+    }
+
+    public int getColumnas() {
+        return columnas;
+    }
+
+    // Devuelve el carácter en la celda (fila, col). Fuera de rango se considera pared.
+    public char getCelda(int fila, int col) {
+        if(fila < 0 || fila >= filas || col < 0 || col >= columnas)
+            return '#';
+        return mapa[fila][col];
+    }
+
+    public int getInicioFila() {
+        return inicioFila;
+    }
+
+    public int getInicioCol() {
+        return inicioCol;
+    }
+
+    public Meta getMeta() {
+        return meta;
+    }
+
+    public Teletransportador[] getTeletransportadores() {
+        return teletransportadores;
+    }
+
+    // Comprueba si la celda en (fila, col) es pasable (no es pared).
+    public boolean esPasable(int fila, int col) {
+        if(fila < 0 || fila >= filas || col < 0 || col >= columnas)
             return false;
-        return mapa[x][y] != '#';
+        return mapa[fila][col] != '#';
+    }
+}
+
+// Representa al robot con su posición y dirección.
+class Robot {
+    int fila;
+    int col;
+    char direccion; // 'S', 'E', 'N', 'W'
+
+    // Constructor: crea un robot en la posición (fila, col) con dirección sur ('S').
+    public Robot(int fila, int col) {
+        this.fila = fila;
+        this.col = col;
+        this.direccion = 'S'; // Dirección inicial: sur.
+    }
+}
+
+// Representa la meta (destino), es decir, la celda con '$'.
+class Meta {
+    int fila;
+    int col;
+
+    public Meta(int fila, int col) {
+        this.fila = fila;
+        this.col = col;
+    }
+}
+
+// Representa un teletransportador ('T').
+class Teletransportador {
+    int fila;
+    int col;
+
+    public Teletransportador(int fila, int col) {
+        this.fila = fila;
+        this.col = col;
     }
 }
