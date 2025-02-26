@@ -3,6 +3,8 @@ public class Bender {
     Mapa mapa;
     Robot robot;
     boolean invertido = false; // Prioridad normal o invertida
+    boolean teletransportado = false; // Evita teletransportarse de forma consecutiva
+
 
     // Constructor: crea el mapa y posiciona el robot en el inicio ('X')
     public Bender(String mapaStr) {
@@ -85,8 +87,12 @@ public class Bender {
         char celda = mapa.getCelda(robot.fila, robot.col);
         if(celda == 'I') {
             invertirPrioridad();
+            teletransportado = false;
         } else if(celda == 'T' && mapa.getTeletransportadores().length > 1) {
             teletransportarse();
+            teletransportado = true;
+        } else {
+            teletransportado = false;
         }
     }
 
@@ -94,29 +100,69 @@ public class Bender {
     // se elige el de menor distancia Manhattan a la posición actual.
     public void teletransportarse() {
         Teletransportador[] tele = mapa.getTeletransportadores();
-        int mejorDist = Integer.MAX_VALUE;
-        int mejorFila = robot.fila;
-        int mejorCol = robot.col;
-        for(Teletransportador t : tele) {
-            if(t.fila == robot.fila && t.col == robot.col)
-                continue;
-            Meta meta = mapa.getMeta();
-            int dist = Math.abs(t.fila - meta.fila) + Math.abs(t.col - meta.col);
-            if(dist < mejorDist) {
-                mejorDist = dist;
-                mejorFila = t.fila;
-                mejorCol = t.col;
+        int n = tele.length;
+
+        // 1. Calcular el centro de todos los teletransportadores.
+        double sumaFila = 0, sumaCol = 0;
+        for (int i = 0; i < n; i++) {
+            sumaFila += tele[i].fila;
+            sumaCol += tele[i].col;
+        }
+        double centroFila = sumaFila / n;
+        double centroCol = sumaCol / n;
+
+        // 2. Calcular el ángulo del teletransportador actual (donde está el robot)
+        double currentAngle = 0;
+        boolean encontrado = false;
+        for (int i = 0; i < n; i++) {
+            if (tele[i].fila == robot.fila && tele[i].col == robot.col) {
+                currentAngle = Math.atan2(tele[i].col - centroCol, centroFila - tele[i].fila);
+                if (currentAngle < 0) {
+                    currentAngle += 2 * Math.PI;
+                }
+                encontrado = true;
+                break;
             }
         }
-        robot.fila = mejorFila;
-        robot.col = mejorCol;
+        if (!encontrado) {
+            // Si por alguna razón no se encuentra, no se teletransporta.
+            return;
+        }
+
+        // 3. Buscar el teletransportador con la mínima diferencia de ángulo en sentido de las agujas del reloj.
+        double mejorDiferencia = Double.MAX_VALUE;
+        int mejorIndice = -1;
+        for (int i = 0; i < n; i++) {
+            // Omitir el teletransportador actual.
+            if (tele[i].fila == robot.fila && tele[i].col == robot.col)
+                continue;
+            double angle = Math.atan2(tele[i].col - centroCol, centroFila - tele[i].fila);
+            if (angle < 0) {
+                angle += 2 * Math.PI;
+            }
+            // Calcular la diferencia en sentido de las agujas del reloj.
+            double diff = angle - currentAngle;
+            if (diff < 0) {
+                diff += 2 * Math.PI;
+            }
+            if (diff < mejorDiferencia) {
+                mejorDiferencia = diff;
+                mejorIndice = i;
+            }
+        }
+
+        // Si se encontró un teletransportador válido, se actualiza la posición del robot.
+        if (mejorIndice != -1) {
+            robot.fila = tele[mejorIndice].fila;
+            robot.col = tele[mejorIndice].col;
+        }
     }
 
     // Método run(): simula el recorrido de Bender hasta alcanzar la meta ('$').
     // Retorna null si se detecta un ciclo.
     public String run() {
         String camino = "";
-        int totalEstados = mapa.getFilas() * mapa.getColumnas() * 8;
+        int totalEstados = mapa.getFilas() * mapa.getColumnas() * 8; // 8 estados por celda (4 direcciones × 2 modos)
         boolean[] visitado = new boolean[totalEstados];
         Meta meta = mapa.getMeta();
         while(robot.fila != meta.fila || robot.col != meta.col) {
