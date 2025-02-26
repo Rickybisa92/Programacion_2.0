@@ -17,7 +17,7 @@ public class Bender {
     }
 
     // Devuelve el índice numérico de la dirección actual del robot: S=0, E=1, N=2, W=3.
-    private int obtenerIndiceDireccion() {
+    public int obtenerIndiceDireccion() {
         char d = robot.direccion;
         switch(d) {
             case 'S': return 0;
@@ -100,7 +100,8 @@ public class Bender {
         for(Teletransportador t : tele) {
             if(t.fila == robot.fila && t.col == robot.col)
                 continue;
-            int dist = Math.abs(t.fila - robot.fila) + Math.abs(t.col - robot.col);
+            Meta meta = mapa.getMeta();
+            int dist = Math.abs(t.fila - meta.fila) + Math.abs(t.col - meta.col);
             if(dist < mejorDist) {
                 mejorDist = dist;
                 mejorFila = t.fila;
@@ -140,11 +141,11 @@ public class Bender {
 
 // Representa el mapa del juego. Se crea a partir de un String de entrada.
 class Mapa {
-    char[][] mapa;
-    int filas, columnas;
-    int inicioFila, inicioCol;
-    Meta meta;
-    Teletransportador[] teletransportadores;
+    char[][] mapa; // Representación del mapa
+    int filas, columnas; // Dimensiones del mapa
+    int inicioFila, inicioCol; // Coordenadas donde se encuentra el robot ( celda 'X')
+    Meta meta; // Llegada (celda '$')
+    Teletransportador[] teletransportadores; // Todas las celdas de teletransportadores ('T')
 
     // Constructor: crea el mapa a partir de un String de entrada.
     public Mapa(String mapaStr) {
