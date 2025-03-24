@@ -66,6 +66,7 @@ public class Containers {
         System.out.println(l1);
         // Converteix l1 a array i imprimeix-ho
         Integer[] arr = l1.toArray(new Integer[0]);
+        System.out.println(Arrays.toString(arr));
     }
 
     static void iterators() {
@@ -123,7 +124,9 @@ public class Containers {
             cua.add(14);
             cua.add(99);
         // Mostra el primer element (sense treurer-lo) de la cúa i imprimeix-ho
+
             System.out.println(cua.peek()); // .peek() retorna el primer element de la cua
+
         // Treu el primer element de la cúa
             cua.poll(); // .poll() treu el primer element de la cua
         // Imprimeix la cúa
@@ -143,6 +146,7 @@ public class Containers {
         while (!cuaPrioritat.isEmpty()) {
             System.out.println(cuaPrioritat.poll());
         }
+
     }
 
     static void piles() {
@@ -157,6 +161,7 @@ public class Containers {
         System.out.println(pila);
         // Imprimeix el valor de damunt la pila, sense treurer-lo
         System.out.println(pila.peek()); // .peek() retorna el valor de damunt la pila
+        System.out.println();
         // Treu i imprimeix els valors de la pila
         while(!pila.isEmpty()) {
             System.out.println(pila.pop()); // .pop() treu el valor de damunt la pila
@@ -181,6 +186,11 @@ public class Containers {
         // i introdueix totes les lletres de la paraula "ESTERNOCLEIDOMASTOIDEO"
         // Després, imprimeix el conjunt
             Set<Character> set2 = new HashSet<>(); // .HashSet() és una implementació de la interfície Set
+            String paraula = "ESTERNOCLEIDOMASTOIDEO";
+            for (int i = 0; i < paraula.length(); i++) {
+                set2.add(paraula.charAt(i));
+            }
+            System.out.println(set2);
 
         // Empra un iterador (it) per recórrer tot el conjunt de caràcters anterior i imprimeix element a element
             Iterator<Character> it = set2.iterator(); // .iterator() retorna un iterador per recórrer el conjunt
@@ -214,8 +224,8 @@ public class Containers {
         // Mitjançant un iterador, imprimeix tots els parells clau-valor del mapa
         Iterator<String> it = kset.iterator();
         while (it.hasNext()) {
-            String key = it.next();
-            System.out.println(key + " - " + map.get(key));
+            String clave = it.next();
+            System.out.println(clave + " - " + map.get(clave)); // .get() retorna el valor associat a la clau
         }
 
         // Empra un mapa que associi un caràcter a un número enter per dur el compte
@@ -225,10 +235,10 @@ public class Containers {
         String paraula = "ESTERNOCLEIDOMASTOIDEO";
         for (int i = 0; i < paraula.length(); i++) {
             char c = paraula.charAt(i);
-            if (map2.containsKey(c)) {
-                map2.put(c, map2.get(c) + 1);
+            if (map2.containsKey(c)) { // .containsKey() retorna true si el mapa conté la clau especificada
+                map2.put(c, map2.get(c) + 1); // .put() posa un valor associat a una clau al mapa (si ja existeix, el sobreescriu)
             } else {
-                map2.put(c, 1);
+                map2.put(c, 1); // .put() posa un valor associat a una clau al mapa
             }
         }
         System.out.println(map2);
